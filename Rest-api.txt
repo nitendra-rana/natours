@@ -1,0 +1,74 @@
+Api: Application programming interface is a piece of software that can be used by another piece of software, 
+in oreder to allow applications to talk to each other.
+
+web apis: 
+
+                         (browsers)
+                             ||   (native ios apps)
+                             ||    //
+                             ||   //
+Database ===> json data  ==> API's ====> native android apps
+                             ||  \\
+                             ||   \\
+                             ||  (native os apps)
+                        (native windows app)
+
+
+Examples of APis:
+    1. Node.js fs or http Apis (node apis)
+    2. Browser's DOM Javascript Apis
+    3. with oops, when exposing methods to public we are creating APIS.
+
+
+
+REST ARCHITECTURE : 
+    1. Principles:
+        a. Separate API into logical resources.
+            Resource: object or representation of something, which has data associated to it. 
+            any information that can be named can be a resource.
+            eg. Tours, users, review
+ 
+        b. Expose structured, resource-based URL's
+
+                                   |~(endpoint)~|
+            https://www.natours.com/addNewTour
+           |________(Url)__________|
+
+           endPoints Examples
+                /getTour, /updateTour, /deleteTour
+                 
+        c. USE HTTP methods(verbs), in order to perform any action (CRUD operations)
+                           (Shoulld be)
+            1. /getTour    ==========>  GET /tours/7      => Read (send id)
+            2. /addTour    ==========>  POST /tours       => Create
+            3. /updateTour ==========>  PUT /tours        => to update client must send send the entire data again,
+                          \\=========>  PATCH /tours      =>           ""                     only the changes.   
+            4. /deleteTour ==========>  Delete /tours/7   => delete (send id)                    
+            
+        d. Send data as JSON(usually)
+                JSON: data in key-value pairs.
+                    1. all keys must be string.
+                    2. value can be object, string, array
+
+                before sending to the client we do some resource formatting 
+                there are lot of standard for res formatting, we use Jsend (enbloping)
+        e. Must be stateless:
+            All States are handled on client, not on server, that means request must contain all the 
+            information necessary to process a certain request. 
+            eg. LoggedIn, currentPage...
+
+
+request-response cycle
+           |""""""""""""""""""""""""Middleware Stack """""""""""""""""""""""""""""""""""""|
+Request ===|Middleware|============|Middleware|===============|Middleware|=======> Response 
+           |  next()  |            |  next()  |               |res.send()|
+        e.g. parsing body,logging,setting heders, router
+
+Middleware: A step that request go through while the request is being processed.
+        eg. app.use(express.json());
+        1. Middleware can manipulate the request or the response object.
+        2. order as defined in the code (defined first will be executed first)
+
+
+
+

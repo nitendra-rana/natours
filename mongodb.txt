@@ -1,0 +1,75 @@
+Mongodb is NO SQL  db
+
+Database  ========================> Collections ==============================> Documents 
+ No Sql                          blog/users/reviews                          post/user/review
+
+
+Main fatures: 
+    document db saves data in bson format, ie types as well 
+    scalable
+    flexible: no document data schema required
+    performant: indexing/sharding/flexible docs/ native-duplication
+
+BSON:
+    1. Data format MongoDb uses for data storeag. like JOSN but Typed.
+           feilds : values(typed)
+        eg.(length: 3280)
+
+    2. Contains embeded documents : Including related data into a single document.
+        this allows for quicker access and easier data models()
+        each documnet has unique id, so does the embeded docs. 
+
+commands :
+    1. => create-new-database : use database-name;
+        a. automatically create db in case it is not there else switch to that db.
+
+    2. => db.tours.insertOne({name:"hello", price:298})
+        a. create new Collection tours and adds the above data into it.
+    
+    3. => db.tours.find({})
+        a. search all documents inside tours and returns that matches condition
+            else returns all.
+    4. => show dbs
+        a. shows all databases
+    5. => show Collections
+        a. shows all Collections inside database.
+    6. => db.tours.inserMany([{name:"hello", price:298},{name:"mongo", price:298}])
+        a. create new Collection tours(in case it's not there) and adds the multiple documents 
+            into it.
+    7. => $lte(less than)/$gte(grater than)  db.tours.find({price:{$lte: 500}})
+
+    8. => projection: we want to send some of the feild as output.
+           db.tours.find({ $or:[{ price: {$gt:500} }, { rating: {gte:4.8} }]}, {name:1})
+           the above query will output only name and _id(always there)
+    
+    9. => db.tours.updateOne({name:"hello"}, {${set:{price:597}}})
+        a. update that tours document where name is "hello". only update first that matches
+            the condition provided
+
+    10. => db.tours.updateMany({name:"hello"}, {${set:{price:597}}})
+        a. updates all tours documents where name is "hello".udates all matching the condition.
+    
+    11. => db.tours.replaceOne({name:"hello"}, {${set:{price:597}}})/db.tours.replaceMany({name:"hello"}, {${set:{price:597}}})
+        a. replace 0ne/all tours document/s where name is "hello".udate/s one/all matching the condition.
+        b. db.tours.replaceOne( { name:"hello" }, {$set: {price:597} })
+                                |   Search     |  | Data to replace  |
+                                |___Query______|  |__________________| 
+    12. => db.tours.deleteOne({name:"hello"}) / db.tours.deleteMany({name:"hello"})
+        a. detete 0ne/all tours document/s where name is "hello".detete/s one/all matching the condition.
+        b. in case of deleteMany({}); empty object it will detete all the data. 
+
+
+Mongoose : 
+
+    1. Mongoose is a Object Data Modeling (ODM) library fro MongoDB and NodeJS as higher 
+       level of abstraction.
+    2. Mongoose allows rapid and simple development of mongoDb Databe intractions.
+    3. features: 
+            a. Schemas to model data and reationships,
+            b. easy data validation, 
+            c. simple query Api, 
+            d. middleware etc...
+    4. Mongoose Schema : where we model our data, describing the structure of the data, default 
+       values, and validation.
+    5. Mongoose model: a wrapper of the schema, providing an interface to the database for CRUD ops.
+
