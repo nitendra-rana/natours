@@ -53,3 +53,21 @@ const tours = JSON.parse(fs.readFileSync(`${dataDirectory}/${fileName}`));
 //     // });
 //   }
 // };
+
+//query filters
+/**
+    //Mongodb Way
+    const tours = await Tour.find({
+      duration: 5,
+      difficulty: 'easy',
+    });
+    /**/
+
+/** *
+    //Mongoose way
+    const tours = await Tour.find()
+      .where('duration')
+      .equals(5)
+      .where('difficulty')
+      .equals('easy');
+    /** */
