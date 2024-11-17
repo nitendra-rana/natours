@@ -4,6 +4,9 @@ const tourController = require('../controllers/tourController');
 const router = express.Router(); //mini application itself
 
 // router.param('id', tourController.checkId);
+router
+  .route('/top-5-cheap')
+  .get(tourController.aliasTopTour, tourController.getAllTours);
 
 router
   .route('/')
