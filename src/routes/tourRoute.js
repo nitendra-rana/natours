@@ -7,7 +7,9 @@ const router = express.Router(); //mini application itself
 router
   .route('/top-5-cheap')
   .get(tourController.aliasTopTour, tourController.getAllTours);
+router.route('/tour-stats').get(tourController.getTourStats);
 
+router.route('/monthly-plan/:year').get(tourController.getMonthelyPlans);
 router
   .route('/')
   .get(tourController.getAllTours)
