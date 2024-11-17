@@ -121,3 +121,99 @@ exports.deleteTour = async (req, res) => {
     });
   }
 };
+
+/**
+ * Aggrigration Pipeline : Matching and grouping
+ */
+
+exports.getTourStats = async (req, res) => {
+  try {
+    //Aggrigration pipeline is a MongodbFeature, but mongoose gives it.
+    //pass an array of stages. $match , $group
+    const stats = await Tour.aggregate([
+      {
+        $match: { ratingsAverage: { $gte: 4.5 } },
+      },
+      {
+        $group: {
+          // _id: null,
+          _id: '$ratingsAverage', //_id hepls to group items into one.
+          // _id: '$difficulty',
+          // _id: { $toUpper: '$difficulty' },
+          num: { $sum: 1 }, //One will be added for each document
+          numOfRatings: { $sum: '$ratingQuantity' },
+          avergaeRating: { $avg: '$ratingsAverage' },
+          avgPrice: { $avg: '$price' },
+          minPrice: { $min: '$price' },
+          mixPrice: { $max: '$price' },
+        },
+      },
+      {
+        $sort: { avgPrice: -1 },
+      },
+
+      // you can add match stage here again, but take care that the documents we receive are modified.
+    ]);
+    res.status(200).json({
+      status: 'success',
+      data: stats,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: 'failed to fetch tours stats.',
+    });
+  }
+};
+exports.getMonthelyPlans = async (req, res) => {
+  try {
+    const year = req.params.year * 1;
+    const monthlyData = await Tour.aggregate([
+      { $unwind: '$startDates' },
+      {
+        $match: {
+          startDates: {
+            $gte: new Date(`${year}-1-1`),
+            $lt: new Date(`${year + 1}-1-1`),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $month: '$startDates' },
+          numToursStart: { $sum: 1 },
+          tours: { $push: '$name' },
+        },
+      },
+      {
+        $addFields: {
+          month: '$_id',
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+        },
+      },
+      {
+        $sort: {
+          numToursStart: -1,
+        },
+      },
+      /** *
+      {
+        $limit: 6,
+      },
+      /** */
+    ]);
+    res.status(200).json({
+      status: 'success',
+      data: monthlyData,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: 'failed to fetch tours stats.',
+    });
+  }
+};
