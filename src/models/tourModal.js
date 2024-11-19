@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
+
 /**
  * in Schema we can pass schema object as well as the schemaOptions object.
  */
@@ -61,6 +63,12 @@ const tourSchema = new mongoose.Schema(
       select: false,
     },
     startDates: [Date],
+    slug: String,
+  },
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  },
   },
   {
     toJSON: { virtuals: true },
@@ -76,7 +84,26 @@ const tourSchema = new mongoose.Schema(
  */
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
+
 });
+/**
+ * Middleware in mongoose.
+ * four type of middleware in Mongoode are : 1. query 2. Document 3. aggerate 4. Model.
+ */
+/**
+ * Document Middleware.
+ * .pre will before an actual event happens.
+ * "save" event includes .save(), .create(), excluding-{.insterMany()}
+ */
+tourSchema.pre('save', function (next) {
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+// tourSchema.post('save', function (doc, next) {
+//   this.slug = slugify(this.name, { lower: true });
+//   next();
+// });
 
 const Tour = mongoose.model('tour', tourSchema);
 
