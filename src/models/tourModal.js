@@ -8,9 +8,11 @@ const tourSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, 'Tour Must have name'], //
+      required: [true, 'Tour Must have name'], //Datavalidator
       unique: true,
       trim: true,
+      maxlength: [40, 'A tour name must have less or eaual to 40 characters'],
+      minlength: [10, 'A tour name must have less or eaual to 10 characters'],
     },
     rating: {
       type: Number,
@@ -115,6 +117,14 @@ tourSchema.pre(/^find/, function (next) {
 
 tourSchema.post(/^find/, function (docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds`);
+  next();
+});
+
+//AGGREGATION PIPELINE
+
+tourSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { secretTours: { $ne: true } } });
+  // console.log(this.pipeline());
   next();
 });
 

@@ -132,13 +132,13 @@ exports.getTourStats = async (req, res) => {
     //pass an array of stages. $match , $group
     const stats = await Tour.aggregate([
       {
-        $match: { ratingsAverage: { $gte: 4.5 } },
+        $match: { ratingsAverage: { $gte: 2 } },
       },
       {
         $group: {
           // _id: null,
-          _id: '$ratingsAverage', //_id hepls to group items into one.
-          // _id: '$difficulty',
+          // _id: '$ratingsAverage', //_id hepls to group items into one.
+          _id: '$difficulty',
           // _id: { $toUpper: '$difficulty' },
           num: { $sum: 1 }, //One will be added for each document
           numOfRatings: { $sum: '$ratingQuantity' },
