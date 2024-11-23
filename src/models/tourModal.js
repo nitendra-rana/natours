@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const validator = require('validator'); // using third pary validator.
 
 /**
  * in Schema we can pass schema object as well as the schemaOptions object.
@@ -13,6 +14,7 @@ const tourSchema = new mongoose.Schema(
       trim: true,
       maxlength: [40, 'A tour name must have less or eaual to 40 characters'],
       minlength: [10, 'A tour name must have less or eaual to 10 characters'],
+      // validate: [validator.isAlpha, 'Tour name must contain only characters.'],
     },
     rating: {
       type: Number,
@@ -24,7 +26,11 @@ const tourSchema = new mongoose.Schema(
     },
     difficulty: {
       type: String,
-      default: 'easy',
+      required: true,
+      enum: {
+        values: ['easy', 'medium', 'difficult'],
+        message: 'Difficult is either: easy, medium, or difficult',
+      },
     },
     duration: {
       type: Number,
@@ -37,6 +43,8 @@ const tourSchema = new mongoose.Schema(
     ratingsAverage: {
       type: Number,
       default: 4.5,
+      min: [1, 'Rating must be above 1'],
+      max: [5, 'ratings must be less than 5'],
     },
     ratingQuantity: {
       type: Number,
@@ -44,6 +52,17 @@ const tourSchema = new mongoose.Schema(
     },
     priceDiscount: {
       type: Number,
+      validate: {
+        validator: function (val) {
+          /**
+           * custom validators. this will always point to the new doc.
+           * that is why this validator won't work for the update.
+           */
+          return val < this.price;
+        },
+        message:
+          'Discount price {VALUE} can not be more than the program price.',
+      },
     },
     summary: {
       type: String,

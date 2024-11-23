@@ -74,7 +74,7 @@ exports.createNewtour = async (req, res) => {
   } catch (error) {
     res.status(400).json({
       status: 'fail',
-      message: error.errorResponse.errmsg,
+      message: error,
     });
   }
 };
@@ -88,7 +88,7 @@ exports.updateTour = async (req, res) => {
     if (req.params.id) {
       const updatedTour = await Tour.findByIdAndUpdate(id, req.body, {
         new: true,
-        runValidators: true,
+        runValidators: true, //This line will run validators again, in cas its false it won't run again.
       });
       res.status(200).json({
         status: 'success',
