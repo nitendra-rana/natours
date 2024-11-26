@@ -11,7 +11,7 @@ const globalErrorHandler = require('./src/controllers/errorController');
 const app = express();
 
 /** */
-/*Middlewares*/
+/*Middlewares : executes in the order they are defined in the code.*/
 //1st middleware
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -21,12 +21,7 @@ if (process.env.NODE_ENV === 'development') {
 //
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
-/* custom middleware applies to every single request* *
-app.use((req, res, next) => {
-  console.log('hello from middleware.');
-  next(); //never forget to use thi next functio
-});
-/**/
+
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next(); //never forget to use the next function
@@ -43,13 +38,6 @@ app.use('/api/v1/users', userRouter);
 
 //Operational Error Handler
 app.all('*', (req, res, next) => {
-  //Throwing error using new Error
-  /** *
-  const err = new Error(`Can't find the ${req.originalUrl} on the server.`);
-  err.status = 'fail';
-  err.statusCode = 404;
-  next(err);
-/** */
   //Using Custom Error class
   next(new AppError(`Can't find the ${req.originalUrl} on the server.`, 404));
 });
