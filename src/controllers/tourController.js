@@ -1,5 +1,6 @@
 const Tour = require('../models/tourModal');
 const APIFeatures = require('../utils/apiFeatures');
+const AppError = require('../utils/appError');
 const { catchAsync } = require('../utils/catchAsync');
 /**Middlewares  */
 exports.aliasTopTour = (req, res, next) => {
@@ -36,11 +37,14 @@ exports.getAllTours = catchAsync(async (req, res) => {
  * 2. get tour by id.
  */
 
-exports.getTour = catchAsync(async (req, res) => {
+exports.getTour = catchAsync(async (req, res, next) => {
   const { params } = req;
   const { id } = params;
 
   const tour = await Tour.findById(id); //Shorthand for => Tour.findOne({_id:id});
+  if (!tour) {
+    return next(new AppError('Tour not found', 404));
+  }
   res.status(200).json({
     status: 'success',
     data: {
@@ -63,13 +67,16 @@ exports.createNewtour = catchAsync(async (req, res) => {
 /*
  * 4. update tour by id.
  */
-exports.updateTour = catchAsync(async (req, res) => {
+exports.updateTour = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   if (req.params.id) {
     const updatedTour = await Tour.findByIdAndUpdate(id, req.body, {
       new: true,
       runValidators: true, //This line will run validators again, in cas its false it won't run again.
     });
+    if (!updatedTour) {
+      return next(new AppError('Tour not found', 404));
+    }
     res.status(200).json({
       status: 'success',
       data: updatedTour,
@@ -80,9 +87,12 @@ exports.updateTour = catchAsync(async (req, res) => {
 /*
  * 5. delete tour by id.
  */
-exports.deleteTour = catchAsync(async (req, res) => {
+exports.deleteTour = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  await Tour.findByIdAndDelete(id);
+  const deteleTour = await Tour.findByIdAndDelete(id);
+  if (!deteleTour) {
+    return next(new AppError('Tour not found', 404));
+  }
   res.status(200).json({
     status: 'success',
     message: 'item deleted sucessfuly',
