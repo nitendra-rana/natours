@@ -1,0 +1,19 @@
+1. Operational error: Problems that we can predict will happen at some point, So we jusr need to handle them in advance.
+a. Invalid path accessed.
+b. Invalid User Input.(e.g. : Validator error from mongoose.)
+c. Failed to connect to server.
+d. Faailed to connect to Database.
+e. request Timeout.
+f. ...
+
+
+2. Programming Error: Bugs that we as a developer introduce inour code. difficult to find and handle.
+a. reading properties on undefined.
+b. Parsing a number here an object is expected.
+c. using await without async.
+d. using request.query instead of request.body
+e .....
+
+
+add Error handling middleware.
+ (errors)[From all source] =====> (Global error handeling middleware) =====> (response)
