@@ -17,3 +17,8 @@ e .....
 
 add Error handling middleware.
  (errors)[From all source] =====> (Global error handeling middleware) =====> (response)
+
+
+
+ uncaught rejections: => promise or other async rejcetions.
+ uncaught exceptions: => all errors that occurs in our synchronous code. 

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-const validator = require('validator'); // using third pary validator.
+// const validator = require('validator'); // using third pary validator.
 
 /**
  * in Schema we can pass schema object as well as the schemaOptions object.
