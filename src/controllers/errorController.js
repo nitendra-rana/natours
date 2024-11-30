@@ -13,6 +13,7 @@ const prodErrorResponse = (err) => {
       message: err.message,
     };
   }
+  console.error(err);
   return {
     statusCode: 500,
     status: 'error',
@@ -28,17 +29,17 @@ const devErrorResponse = (err) => ({
 });
 
 const sendErrorRes = (err, res) => {
+  let error = { ...err };
   let responseData = {};
   if (process.env.NODE_ENV === 'development') {
-    responseData = devErrorResponse(err);
+    responseData = devErrorResponse(error);
   } else if (process.env.NODE_ENV === 'production') {
-    let error = { ...err };
-    if (error.name === 'CastError') {
+    if (err.name === 'CastError') {
       error = handleCastErrorDb(error);
     }
     responseData = prodErrorResponse(error);
   }
-  res.status(err.statusCode).json(responseData);
+  res.status(error.statusCode).json(responseData);
 };
 
 module.exports = (err, req, res, next) => {
