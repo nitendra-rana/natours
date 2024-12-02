@@ -30,10 +30,9 @@ const replaceUserNameAndPassword = (str) => {
   return str
     .replace('<USER>', dbReplacements.USER)
     .replace('<PASSWORD>', dbReplacements.PASSWORD)
-    .replace('<DATABASE_NAME>', dbReplacements.DB_NAME);
+    .replace('<DB_NAME>', dbReplacements.DB_NAME);
 };
 const DB = replaceUserNameAndPassword(process.env.DATABASE);
-
 mongoose.connect(DB).then(() => {
   console.log('Database connected');
 });

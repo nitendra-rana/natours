@@ -31,18 +31,21 @@ const prodErrorResponse = (err) => {
   };
 };
 
-const devErrorResponse = (err) => ({
-  status: err.status,
-  message: err.message,
-  error: err,
-  stack: err.stack,
-});
+const devErrorResponse = (err) => {
+  console.log(err);
+  return {
+    status: err.status,
+    message: err.message,
+    error: err,
+    stack: err.stack,
+  };
+};
 
 const sendErrorRes = (err, res) => {
   let error = { ...err };
   let responseData = {};
   if (process.env.NODE_ENV === 'development') {
-    responseData = devErrorResponse(error);
+    responseData = devErrorResponse(err);
   } else if (process.env.NODE_ENV === 'production') {
     if (err.name === 'CastError') error = handleCastErrorDb(error);
     if (err.code === 11000) error = handleDuplicateFieldsDB(error);
