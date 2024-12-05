@@ -15,6 +15,8 @@ const handleValidationError = (err) => {
   const message = `Invalid input data.${errors.join('. ')}.`;
   return new AppError(message, 400);
 };
+const handleJwtError = () =>
+  new AppError('Invalid token please login again.', 401);
 const prodErrorResponse = (err) => {
   if (err.isOperational) {
     //OPERATIONAL ERROR :SEND TO CLIENT
@@ -31,15 +33,12 @@ const prodErrorResponse = (err) => {
   };
 };
 
-const devErrorResponse = (err) => {
-  console.log(err);
-  return {
-    status: err.status,
-    message: err.message,
-    error: err,
-    stack: err.stack,
-  };
-};
+const devErrorResponse = (err) => ({
+  status: err.status,
+  message: err.message,
+  error: err,
+  stack: err.stack,
+});
 
 const sendErrorRes = (err, res) => {
   let error = { ...err };
@@ -50,6 +49,9 @@ const sendErrorRes = (err, res) => {
     if (err.name === 'CastError') error = handleCastErrorDb(error);
     if (err.code === 11000) error = handleDuplicateFieldsDB(error);
     if (err.name === 'ValidationError') error = handleValidationError(error);
+    if (err.name === 'JsonWebTokenError') error = handleJwtError(error);
+    if (err.name === 'JsonWebTokenError') error = handleJwtError(error);
+
     responseData = prodErrorResponse(error);
   }
   res.status(error.statusCode).json(responseData);
