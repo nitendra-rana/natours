@@ -1,3 +1,4 @@
+const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const User = require('../models/usersModal');
 const { catchAsync } = require('../utils/catchAsync');
@@ -15,6 +16,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
     photo: req.body.photo || '',
+    passwordChangedAt: req.body.passwordChangedAt,
   };
   //! if we directly use req.body, then anyone can put nay data.
   const newUser = await User.create(userDetails);
@@ -66,7 +68,20 @@ exports.protect = catchAsync(async (req, res, next) => {
     return next(new AppError('you are not logged in.', 401));
   }
   //2. verification of token.
+  const decode = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
   //3. check if user still exists.
+  const freshUser = await User.findById(decode.id);
+  if (!freshUser) {
+    return next(new AppError('User no longer exists', 401));
+  }
   //4. check if user changed password after the token issued.
+  if (await freshUser.changedPasswordAfter(decode.iat)) {
+    return next(
+      new AppError('User recently chnaged password! please login again.', 401),
+    );
+  }
+
+  //5. GRANT ACCESS TO PROTECTED ROUTE
+  req.user = freshUser;
   next();
 });
