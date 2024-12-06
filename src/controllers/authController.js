@@ -97,3 +97,16 @@ exports.restrictTo =
 
     next();
   };
+
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+  //1. get user based on posted email.
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return next(new AppError('User not found', 404));
+  }
+  //2. Generate the random rest token.
+  const resetToken = user.createPasswordResetToken();
+  await user.save({ validateBeforeSave: false });
+  //3. send it to users email.
+});
+exports.updatePassword = (req, res, next) => {};
