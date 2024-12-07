@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 
-exports.sendEmail = (options) => {
+const sendEmail = (options) => {
   //1. create a transporter.
   // Looking to send emails in production? Check out our Email API/SMTP product!
   const transporter = nodemailer.createTransport({
@@ -23,3 +23,5 @@ exports.sendEmail = (options) => {
   //3. Actually send the email
   transporter.sendMail(mailOptions);
 };
+
+module.exports = sendEmail;
