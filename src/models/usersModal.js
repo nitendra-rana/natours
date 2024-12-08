@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'guide', 'lead-guide', 'admin'],
     default: 'user',
   },
-  passwodResetToken: String,
+  passwordResetToken: String,
   passwordResetExpired: Date,
 });
 
@@ -77,7 +77,7 @@ userSchema.methods.changedPasswordAfter = async function (jwtTimestamp) {
 
 userSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString('hex');
-  this.passwodResetToken = crypto
+  this.passwordResetToken = crypto
     .createHash('sha256')
     .update(resetToken)
     .digest('hex');

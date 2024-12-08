@@ -14,7 +14,7 @@ const sendEmail = (options) => {
   //!Activate in gmail 'less secure app' option
   //2. define the eamil options
   const mailOptions = {
-    from: 'Nitendra Rana<support@nitendra.io',
+    from: 'Nik Rana<support@nik.dev',
     to: options.email,
     subject: options.subject,
     text: options.message,

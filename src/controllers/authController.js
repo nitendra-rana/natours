@@ -1,4 +1,5 @@
 const { promisify } = require('util');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const User = require('../models/usersModal');
 const { catchAsync } = require('../utils/catchAsync');
@@ -125,7 +126,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
       message: 'Please check you email',
     });
   } catch (error) {
-    user.passwodResetToken = undefined;
+    user.passwordResetToken = undefined;
     user.passwordResetExpired = undefined;
     res.status(200).json({
       status: 'success',
@@ -140,4 +141,36 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 
-exports.updatePassword = (req, res, next) => {};
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  //1. get user based on the token.
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpired: { $gt: Date.now() },
+  });
+  //2. if token has not expired, user exits, set the new pasword
+  if (!user) {
+    return next(
+      new AppError(
+        'Your password reset link is expired, please try forget password again.',
+        404,
+      ),
+    );
+  }
+  //3. update changed passoword at property for the user.
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.password;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpired = undefined;
+  await user.save();
+
+  //4. Log the user in and send jwt.
+  const token = signToken(user._id);
+  res.status(200).json({
+    status: 'success',
+    token,
+  });
+});
