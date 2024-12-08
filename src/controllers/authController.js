@@ -1,8 +1,10 @@
 const { promisify } = require('util');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const User = require('../models/usersModal');
 const { catchAsync } = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const sendEmail = require('../utils/email');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -108,5 +110,67 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   const resetToken = user.createPasswordResetToken();
   await user.save({ validateBeforeSave: false });
   //3. send it to users email.
+  const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
+  const message = `Forget your password ? Please confirm you password from below link.
+                    ${resetUrl}.\n
+                  If you didn't requsted for reset password please ignore this message.`;
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: 'Password reset link valid only for 10 mins.',
+      message,
+    });
+    //4. send response to the api.
+    res.status(200).json({
+      status: 'success',
+      message: 'Please check you email',
+    });
+  } catch (error) {
+    user.passwordResetToken = undefined;
+    user.passwordResetExpired = undefined;
+    res.status(200).json({
+      status: 'success',
+      message: 'Please check you email',
+    });
+    await user.save({ validateBeforeSave: false });
+    return next(
+      new AppError(
+        'There is the error sending email, please try again after some time.',
+      ),
+    );
+  }
 });
-exports.updatePassword = (req, res, next) => {};
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  //1. get user based on the token.
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpired: { $gt: Date.now() },
+  });
+  //2. if token has not expired, user exits, set the new pasword
+  if (!user) {
+    return next(
+      new AppError(
+        'Your password reset link is expired, please try forget password again.',
+        404,
+      ),
+    );
+  }
+  //3. update changed passoword at property for the user.
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.password;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpired = undefined;
+  await user.save();
+
+  //4. Log the user in and send jwt.
+  const token = signToken(user._id);
+  res.status(200).json({
+    status: 'success',
+    token,
+  });
+});

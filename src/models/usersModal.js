@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'guide', 'lead-guide', 'admin'],
     default: 'user',
   },
-  passwodResetToken: String,
+  passwordResetToken: String,
   passwordResetExpired: Date,
 });
 
@@ -52,6 +52,12 @@ userSchema.pre('save', async function (next) {
 
   //!delete passwordConfirm Field.
   this.passwordConfirm = undefined;
+  next();
+});
+userSchema.pre('save', async function (next) {
+  //!only run if passowrd was actually modified modified
+  if (!this.isModified('password') || this.isNew) return next();
+  this.passwordChangedAt = Date.now() - 1000; // as sve methods takes some time so we reduce it by one sec.
   next();
 });
 
@@ -77,7 +83,7 @@ userSchema.methods.changedPasswordAfter = async function (jwtTimestamp) {
 
 userSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString('hex');
-  this.passwodResetToken = crypto
+  this.passwordResetToken = crypto
     .createHash('sha256')
     .update(resetToken)
     .digest('hex');
