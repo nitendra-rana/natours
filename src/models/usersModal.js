@@ -54,6 +54,12 @@ userSchema.pre('save', async function (next) {
   this.passwordConfirm = undefined;
   next();
 });
+userSchema.pre('save', async function (next) {
+  //!only run if passowrd was actually modified modified
+  if (!this.isModified('password') || this.isNew) return next();
+  this.passwordChangedAt = Date.now() - 1000; // as sve methods takes some time so we reduce it by one sec.
+  next();
+});
 
 //Instance method is avaliable for all documents.
 
