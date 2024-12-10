@@ -25,7 +25,9 @@ exports.createNewUser = (req, res) => {
     message: 'this route is not yet defined.',
   });
 };
-exports.updateMe = async (req, res, next) => {
+
+exports.updateMe = catchAsync(async (req, res, next) => {
+  const { id } = req.user.id;
   //1. create error is user try to update password
   if (req.body.password || req.body.passwordConfirm) {
     return next(
@@ -39,13 +41,14 @@ exports.updateMe = async (req, res, next) => {
   const filterBody = filterObj(req.body, 'name', 'email');
 
   //2. get user based on access token and update the user document.
-  const updatedUser = User.findByIdAndUpdate(req.user.id, filterBody, {
+  const updatedUser = await User.findByIdAndUpdate(id, filterBody, {
     new: true,
     runValidators: true,
   });
 
   res.status(200).json({ status: 'success', data: { user: updatedUser } });
-};
+});
+
 exports.getUser = (req, res) => {
   res.status(500).json({
     status: 'error',
