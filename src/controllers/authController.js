@@ -5,6 +5,7 @@ const User = require('../models/usersModal');
 const { catchAsync } = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const sendEmail = require('../utils/email');
+// const { decodeJwtToken } = require('../helper.js/usersHelper');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -141,7 +142,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 
-exports.updatePassword = catchAsync(async (req, res, next) => {
+exports.resetPassword = catchAsync(async (req, res, next) => {
   //1. get user based on the token.
   const hashedToken = crypto
     .createHash('sha256')
@@ -172,5 +173,31 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     token,
+  });
+});
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  //1. Get user from collection.
+  // const token = decodeJwtToken(req.headers.authorization);
+  // if (!token) return next(new AppError('you are not logged in.', 401));
+  // const decode = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  const { id } = req.user;
+  const user = await User.findById(id).select('+password');
+  //2. check if user password is correct.
+  const { oldPassword, password, passwordConfirm } = req.body;
+  if (!user || !(await user.correctPassword(oldPassword, user.password))) {
+    return next(new AppError('Incorrect password', 401));
+  }
+  //3. if pasword is correct update new password
+  user.password = password;
+  user.passwordConfirm = passwordConfirm;
+  await user.save();
+  //4. Log in user agin and send Jwt in response.
+  const newtoken = signToken(user._id);
+  res.status(200).json({
+    status: 'success',
+    data: {
+      token: newtoken,
+    },
   });
 });
