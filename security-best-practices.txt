@@ -1,0 +1,35 @@
+1. Compromised Db
+    => Strongly encrypt password with salt ad hash(bcrypt)
+    => stringly encrypt password reset tokens (SHA 256)
+2. Brute Force Attacks
+    => Use Bcrypt(to make requst slow).
+    => Implemet rate Limiting(express-rate-limit).
+    => Implement maximum login attempt.(from one single id)
+3. Cross-site Scripting(XSS) Attacks
+    => Store JWT in HTTPOnly cookies
+    => sanatize user input data.
+    => Set Special HTTP headers(helmet package)
+4. Denial of service (DOS) Attack
+    => Implment rate limiting(express-rate-limit)
+    => limit body payload (in-body-parser)
+    => Avoid evil regular expressions.
+5. NOSQL Query Injections:
+    => use mongoose for MongoDb(beacuse of schema types)
+    => sanitize user input data.
+
+
+OTHER BEST PRACTISES AND SUGGESTIONS
+1. Always use HTTPS.
+2. Create random passowrd reset tokens with expiry dates.
+3. Deny acess to JWT after password change.
+4. Don't commit sensitive config data to git.
+5. Don't send error details to client.
+
+a. Prevent Cross-Site-Request Forgery(csurf package)
+b. Require re-authentication before high value authentication.
+c. Implement a blacklist of untusted jwt.
+d. Confirm user email addredd after first creating account
+e. keep user logged in with refresh tokens
+f. implement two factor authentication.
+
+i. prevent paramenter pollution causing Uncaght Exceptions.
