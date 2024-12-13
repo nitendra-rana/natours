@@ -5,12 +5,35 @@ const User = require('../models/usersModal');
 const { catchAsync } = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const sendEmail = require('../utils/email');
+// const { decodeJwtToken } = require('../helper.js/usersHelper');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+const createSendToken = (user, statusCode, res) => {
+  const newDate = new Date(
+    Date.now() + process.env.JWT_COOKIES_EXPIRES_IN * 24 * 60 * 60 * 1000,
+  );
+  const cookieOptions = {
+    expires: newDate,
+    httpOnly: true,
+  };
+  const token = signToken(user._id);
+  if (process.env.Node_ENV === 'production') cookieOptions.secure = true;
+
+  res.cookie('jwt', token, cookieOptions);
+  //Just to remove password from response
+  user.password = undefined;
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user: user,
+    },
+  });
+};
 exports.signup = catchAsync(async (req, res, next) => {
   const userDetails = {
     name: req.body.name,
@@ -22,14 +45,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   };
   //! if we directly use req.body, then anyone can put nay data.
   const newUser = await User.create(userDetails);
-  const token = signToken(newUser._id);
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser,
-    },
-  });
+  createSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -141,7 +157,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 
-exports.updatePassword = catchAsync(async (req, res, next) => {
+exports.resetPassword = catchAsync(async (req, res, next) => {
   //1. get user based on the token.
   const hashedToken = crypto
     .createHash('sha256')
@@ -172,5 +188,31 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     token,
+  });
+});
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  //1. Get user from collection.
+  // const token = decodeJwtToken(req.headers.authorization);
+  // if (!token) return next(new AppError('you are not logged in.', 401));
+  // const decode = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  const { id } = req.user;
+  const user = await User.findById(id).select('+password');
+  //2. check if user password is correct.
+  const { oldPassword, password, passwordConfirm } = req.body;
+  if (!user || !(await user.correctPassword(oldPassword, user.password))) {
+    return next(new AppError('Incorrect password', 401));
+  }
+  //3. if pasword is correct update new password
+  user.password = password;
+  user.passwordConfirm = passwordConfirm;
+  await user.save();
+  //4. Log in user agin and send Jwt in response.
+  const newtoken = signToken(user._id);
+  res.status(200).json({
+    status: 'success',
+    data: {
+      token: newtoken,
+    },
   });
 });
