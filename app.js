@@ -5,6 +5,8 @@ const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const mongoSaitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
 const tourRouter = require('./src/routes/tourRoute');
 const userRouter = require('./src/routes/userRoute');
 const AppError = require('./src/utils/appError');
@@ -24,6 +26,13 @@ if (process.env.NODE_ENV === 'development') {
 }
 //BODY PARSER
 app.use(express.json({ limit: '10kb' }));
+
+//SANITIZE DATA FROM NOSQL INJECTIONS.
+app.use(mongoSaitize());
+
+//SANITIZE DATA FROM XSS ATTCAKS.
+app.use(xss());
+
 app.use(express.static(`${__dirname}/public`));
 
 //Global Middleware function.
