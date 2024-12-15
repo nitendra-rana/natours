@@ -3,6 +3,11 @@
  */
 const express = require('express');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const mongoSaitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const hpp = require('hpp');
 const tourRouter = require('./src/routes/tourRoute');
 const userRouter = require('./src/routes/userRoute');
 const AppError = require('./src/utils/appError');
@@ -10,18 +15,49 @@ const globalErrorHandler = require('./src/controllers/errorController');
 /*constants */
 const app = express();
 
+//SECURE HTTP HEADERS
+app.use(helmet());
 /** */
 /*Middlewares : executes in the order they are defined in the code.*/
-//1st middleware
+//DEVELOPMENT LOGGING
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 } else {
   console.log(`we are in prod`);
 }
-//
-app.use(express.json());
+//BODY PARSER
+app.use(express.json({ limit: '10kb' }));
+
+//SANITIZE DATA FROM NOSQL INJECTIONS.
+app.use(mongoSaitize());
+
+//SANITIZE DATA FROM XSS ATTCAKS.
+app.use(xss());
+
+//PREVENT PARAMETER POLLUTION
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'difficulty',
+      'price',
+      'maxGroupSize',
+      'ratingsAverage',
+      'ratingsQuantity',
+    ],
+  }),
+);
+
 app.use(express.static(`${__dirname}/public`));
 
+//Global Middleware function.
+//APPLY RATE LIMIT TO CURRENT REQUEST.
+const limitter = rateLimit({
+  max: 100,
+  windwoMs: 60 * 60 * 1000,
+  message: 'Too many request from this account, please try again in an hour.',
+});
+app.use('/api', limitter);
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next(); //never forget to use the next function
