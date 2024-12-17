@@ -32,6 +32,29 @@ const tourSchema = new mongoose.Schema(
         message: 'Difficult is either: easy, medium, or difficult',
       },
     },
+    startLocation: {
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
     duration: {
       type: Number,
       required: [true, 'The tour must have duration.'],
