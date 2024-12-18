@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const User = require('./usersModal');
 // const validator = require('validator'); // using third pary validator.
 
 /**
@@ -112,6 +113,7 @@ const tourSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    guides: Array,
   },
   //Options
   {
@@ -156,7 +158,13 @@ tourSchema.pre(/^find/, function (next) {
   this.start = Date.now();
   next();
 });
-
+/**EMBEDDING USERS TO TOURS AS GUIDE */
+tourSchema.pre('save', async function (next) {
+  const guidesPromises = this.guides(async (id) => await User.findById(id));
+  this.guides = await Promise.all(guidesPromises);
+  next();
+});
+/** */
 tourSchema.post(/^find/, function (docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds`);
   next();
