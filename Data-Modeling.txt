@@ -1,0 +1,31 @@
+Embedding and Referencing Data 
+
+1. EMBEDDED (DE-NORMALIZED) DATA 
+2. REFERENING (NORMALIZING) DATA 
+
+
+PRACTICAL GUILDE TO CHOOSE BETWEEN EMBEDDING AND REFERENCING DATA
+
+==================================================================================================================================
+| combine all 3 criteria         |     EMBEDDED                                         |       REFERENCE                        |   
+|+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++             
+|                                |  one-few                                             |       one-many  &   one-ton            |
+|       Relationship type        |  one-Many                                            |       Many-Many                        |
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|                                |  1-Data is mostly read only/ dosen't change quickly  |      Data is updated a lot             |
+|     Data Access pattern        |  2-High read/write ratio  (Movies + Images)          | Low read/write ratio(Movies + reviews) |
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|                                |  1-Data set really belongs together                  | frequently need to query both dataset  |
+|       Data closeness           |  2- user- email address                              |   movies + images                      |
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+type of referencing:
+ Child referencing : 
+    1. keep child id for refrence in parent item.
+    2. sometime it become very large array which is anti pattern in mongodb.
+ parent Referencing: 
+    1. keep parent id for refrence in child item.
+    2. it avoid problem of indefinate array or ids. 
+ two way referencing:
+    1. Used for many to many relationships

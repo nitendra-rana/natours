@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+// const User = require('./usersModal');  // Only need to import in case of Embedding
 // const validator = require('validator'); // using third pary validator.
 
 /**
@@ -32,6 +33,29 @@ const tourSchema = new mongoose.Schema(
         message: 'Difficult is either: easy, medium, or difficult',
       },
     },
+    startLocation: {
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
     duration: {
       type: Number,
       required: [true, 'The tour must have duration.'],
@@ -89,6 +113,15 @@ const tourSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    /*for embedding tours document
+    guides: Array, 
+    */
+    guides: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users', // Name of collection
+      },
+    ],
   },
   //Options
   {
@@ -134,6 +167,23 @@ tourSchema.pre(/^find/, function (next) {
   next();
 });
 
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v',
+  });
+
+  next();
+});
+/**EMBEDDING USERS TO TOURS AS GUIDE *
+tourSchema.pre('save', async function (next) {
+  const guidesPromises = this.guides(async (id) => await User.findById(id));
+  this.guides = await Promise.all(guidesPromises);
+  next();
+});
+/** REFERENCING USERS TO TOURS AS GUIDE*/
+
+/**Child referencing docs  */
 tourSchema.post(/^find/, function (docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds`);
   next();
