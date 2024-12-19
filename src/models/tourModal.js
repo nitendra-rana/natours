@@ -118,8 +118,8 @@ const tourSchema = new mongoose.Schema(
     */
     guides: [
       {
-        type: mongoose.Schema.ObjectId,
-        ref: 'User',
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users', // Name of collection
       },
     ],
   },
@@ -164,6 +164,15 @@ tourSchema.pre(/^find/, function (next) {
   //ifor only <find> it will not work for <findOne>
   this.find({ secretTours: { $ne: true } });
   this.start = Date.now();
+  next();
+});
+
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v',
+  });
+
   next();
 });
 /**EMBEDDING USERS TO TOURS AS GUIDE *
