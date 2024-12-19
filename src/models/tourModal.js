@@ -166,6 +166,14 @@ tourSchema.pre(/^find/, function (next) {
   this.start = Date.now();
   next();
 });
+
+tourSchema.post(/^find/, function (_, next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v',
+  });
+  next();
+});
 /**EMBEDDING USERS TO TOURS AS GUIDE *
 tourSchema.pre('save', async function (next) {
   const guidesPromises = this.guides(async (id) => await User.findById(id));
