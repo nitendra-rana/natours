@@ -1,4 +1,4 @@
-const Tour = require('../models/tourModal');
+const Tour = require('../models/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 const { catchAsync } = require('../utils/catchAsync');
@@ -16,6 +16,7 @@ exports.aliasTopTour = (req, res, next) => {
  */
 exports.getAllTours = catchAsync(async (req, res) => {
   //EXECUTE QUERY
+  const totalTours = await Tour.countDocuments();
   const features = new APIFeatures(Tour.find(), req.query)
     .filter()
     .sort()
@@ -27,7 +28,7 @@ exports.getAllTours = catchAsync(async (req, res) => {
   res.status(200).json({
     status: 'success',
     data: {
-      count: tours.length,
+      count: totalTours,
       tours,
     },
   });

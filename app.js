@@ -10,6 +10,8 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const tourRouter = require('./src/routes/tourRoute');
 const userRouter = require('./src/routes/userRoute');
+const reviewRouter = require('./src/routes/reviewRoute');
+
 const AppError = require('./src/utils/appError');
 const globalErrorHandler = require('./src/controllers/errorController');
 /*constants */
@@ -69,6 +71,7 @@ app.use((req, res, next) => {
 // Mounting the new routers.
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 //Error handeling.
 

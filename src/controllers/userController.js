@@ -1,11 +1,12 @@
 // const APIFeatures = require('../utils/apiFeatures');
 const { filterObj } = require('../helper.js/usersHelper');
-const User = require('../models/usersModal');
+const User = require('../models/usersModel');
 const AppError = require('../utils/appError');
 const { catchAsync } = require('../utils/catchAsync');
 
 //handlers
 exports.getUsers = catchAsync(async (req, res) => {
+  const totalusers = await User.countDocuments();
   const features = await User.find();
   // new APIFeatures(User.find(), req.query).filter().sort().limit().paginate();
 
@@ -14,7 +15,7 @@ exports.getUsers = catchAsync(async (req, res) => {
     status: 'success',
     data: {
       users: features,
-      // count: users.length,
+      count: totalusers,
     },
   });
 });
