@@ -17,22 +17,29 @@ const reviewSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'tour',
     required: [true, 'Review must belong to a tour.'],
+    strictPopulate: false,
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'users',
     required: [true, 'Review must given by a user.'],
+    strictPopulate: false,
   },
 });
-
+/** */
 reviewSchema.pre(/^find/, function (next) {
   this.populate({
-    path: 'tour,users ',
+    path: 'tour',
     select: '-__v',
   });
-
+  this.populate({
+    path: 'user',
+    select: '-__v -role',
+  });
   next();
 });
+
+/** */
 
 const Review = mongoose.model('review', reviewSchema);
 

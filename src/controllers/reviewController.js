@@ -6,13 +6,14 @@ exports.createTourReview = catchAsync(async (req, res, next) => {
   // const { review, rating, user, tour } = req.body;
   const review = await Review.create(req.body);
 
-  res.send(201).json({
+  res.status(201).json({
     status: 'success',
     data: { review },
   });
 });
 
 exports.getAllReviews = catchAsync(async (req, res, next) => {
+  const totalReviews = await Review.countDocuments();
   const features = new APIFeatures(Review.find(), req.query)
     .filter()
     .sort()
@@ -24,7 +25,7 @@ exports.getAllReviews = catchAsync(async (req, res, next) => {
     status: 'success',
     data: {
       reviews,
-      count: reviews.length,
+      count: totalReviews,
     },
   });
 });

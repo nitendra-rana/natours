@@ -8,11 +8,11 @@ router
   .route('/')
   .get(authController.protect, reviewController.getAllReviews)
   .post(reviewController.createTourReview);
-
+/*
 router
   .route('/:id')
   .get(reviewController.getReview)
   .patch(reviewController.updateReview)
   .delete(authController.protect, reviewController.deleteReview);
-
+*/
 module.exports = router;
