@@ -18,13 +18,11 @@ const reviewSchema = new mongoose.Schema({
     ref: 'tour',
     required: [true, 'Review must belong to a tour.'],
   },
-  users: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'users',
-      required: [true, 'Review must given by a user.'],
-    },
-  ],
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'users',
+    required: [true, 'Review must given by a user.'],
+  },
 });
 
 reviewSchema.pre(/^find/, function (next) {
