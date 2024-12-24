@@ -31,10 +31,18 @@ reviewSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'user',
     select: 'name',
-  }).populate({
-    path: 'tour',
-    select: 'name, duration',
   });
+  /**
+     * In the case we polulate tours, it will start the following chain
+     * Populates tours inside reviews and also populate guides inside tour
+     * which is not efficient.
+     * and we don't necessarly need to populate reviews with tours.
+     *
+    .populate({
+      path: 'tour',
+      select: 'name, duration',
+    });
+  /** */
   next();
 });
 
