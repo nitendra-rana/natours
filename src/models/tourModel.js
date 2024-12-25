@@ -139,6 +139,12 @@ const tourSchema = new mongoose.Schema(
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
+//Virtual populate reviews
+tourSchema.virtual('reviews', {
+  ref: 'review',
+  foreignField: 'tour',
+  localField: '_id',
+});
 /**
  * Middleware in mongoose.
  * four type of middleware in Mongoode are : 1. query 2. Document 3. aggerate 4. Model.
