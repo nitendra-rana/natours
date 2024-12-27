@@ -29,13 +29,20 @@ const reviewSchema = new mongoose.Schema({
 /** */
 reviewSchema.pre(/^find/, function (next) {
   this.populate({
-    path: 'tour',
-    select: '-__v',
-  });
-  this.populate({
     path: 'user',
-    select: '-__v -role',
+    select: 'name',
   });
+  /**
+     * In the case we polulate tours, it will start the following chain
+     * Populates tours inside reviews and also populate guides inside tour
+     * which is not efficient.
+     * and we don't necessarly need to populate reviews with tours.
+     *
+    .populate({
+      path: 'tour',
+      select: 'name, duration',
+    });
+  /** */
   next();
 });
 
