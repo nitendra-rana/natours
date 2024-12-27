@@ -16,8 +16,10 @@ exports.createTourReview = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllReviews = catchAsync(async (req, res, next) => {
+  let filter = {};
+  if (req.params.tourId) filter = { tour: req.params.tourId };
   const totalReviews = await Review.countDocuments();
-  const features = new APIFeatures(Review.find(), req.query)
+  const features = new APIFeatures(Review.find(filter), req.query)
     .filter()
     .sort()
     .limit()
