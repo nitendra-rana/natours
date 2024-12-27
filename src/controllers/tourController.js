@@ -2,6 +2,8 @@ const Tour = require('../models/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 const { catchAsync } = require('../utils/catchAsync');
+const factory = require('./handlerFactory');
+
 /**Middlewares  */
 exports.aliasTopTour = (req, res, next) => {
   req.query.limit = '5';
@@ -88,17 +90,7 @@ exports.updateTour = catchAsync(async (req, res, next) => {
 /*
  * 5. delete tour by id.
  */
-exports.deleteTour = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-  const deteleTour = await Tour.findByIdAndDelete(id);
-  if (!deteleTour) {
-    return next(new AppError('Tour not found', 404));
-  }
-  res.status(200).json({
-    status: 'success',
-    message: 'item deleted sucessfuly',
-  });
-});
+exports.deleteTour = factory.deleteOne(Tour);
 
 /**
  * Aggrigration Pipeline : Matching and grouping
