@@ -12,3 +12,23 @@ exports.deleteOne = (Model) =>
       data: null,
     });
   });
+
+exports.updateOne = (Model) =>
+  catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    if (req.params.id) {
+      const updatedDocument = await Model.findByIdAndUpdate(id, req.body, {
+        new: true,
+        runValidators: true, //This line will run validators again, in cas its false it won't run again.
+      });
+      if (!updatedDocument) {
+        return next(new AppError('document not found', 404));
+      }
+      res.status(200).json({
+        status: 'success',
+        data: {
+          data: updatedDocument,
+        },
+      });
+    }
+  });
