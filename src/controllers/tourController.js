@@ -1,7 +1,8 @@
 const Tour = require('../models/tourModel');
-const APIFeatures = require('../utils/apiFeatures');
-const AppError = require('../utils/appError');
 const { catchAsync } = require('../utils/catchAsync');
+const factory = require('./handlerFactory');
+
+const { createOne, updateOne, deleteOne, getOne, getAll } = factory;
 /**Middlewares  */
 exports.aliasTopTour = (req, res, next) => {
   req.query.limit = '5';
@@ -14,91 +15,28 @@ exports.aliasTopTour = (req, res, next) => {
 /*
  * 1. get All tours.
  */
-exports.getAllTours = catchAsync(async (req, res) => {
-  //EXECUTE QUERY
-  const totalTours = await Tour.countDocuments();
-  const features = new APIFeatures(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .limit()
-    .paginate();
-  const tours = await features.query;
-  /** */
-  // const tours = await query;
-  res.status(200).json({
-    status: 'success',
-    data: {
-      count: totalTours,
-      tours,
-    },
-  });
-});
+exports.getAllTours = getAll(Tour);
 
 /*
  * 2. get tour by id.
  */
 
-exports.getTour = catchAsync(async (req, res, next) => {
-  const { params } = req;
-  const { id } = params;
-
-  const tour = await Tour.findById(id).populate('reviews'); //Shorthand for => Tour.findOne({_id:id});
-  if (!tour) {
-    return next(new AppError('Tour not found', 404));
-  }
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour,
-    },
-  });
-});
+exports.getTour = getOne(Tour, { path: 'reviews' });
 
 /*
  * 3. create new tour.
  */
-exports.createNewtour = catchAsync(async (req, res) => {
-  const newTour = await Tour.create(req.body);
-  res.status(201).json({
-    status: 'success',
-    data: { tour: newTour },
-  });
-});
+exports.createNewtour = createOne(Tour);
 
 /*
  * 4. update tour by id.
  */
-exports.updateTour = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-  if (req.params.id) {
-    const updatedTour = await Tour.findByIdAndUpdate(id, req.body, {
-      new: true,
-      runValidators: true, //This line will run validators again, in cas its false it won't run again.
-    });
-    if (!updatedTour) {
-      return next(new AppError('Tour not found', 404));
-    }
-    res.status(200).json({
-      status: 'success',
-      data: updatedTour,
-    });
-  }
-});
+exports.updateTour = updateOne(Tour);
 
 /*
  * 5. delete tour by id.
  */
-exports.deleteTour = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-  const deteleTour = await Tour.findByIdAndDelete(id);
-  if (!deteleTour) {
-    return next(new AppError('Tour not found', 404));
-  }
-  res.status(200).json({
-    status: 'success',
-    message: 'item deleted sucessfuly',
-  });
-});
+exports.deleteTour = deleteOne(Tour);
 
 /**
  * Aggrigration Pipeline : Matching and grouping

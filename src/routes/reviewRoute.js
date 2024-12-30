@@ -6,17 +6,26 @@ const authController = require('../controllers/authController');
  * Every router have access to it own params,
  * if we want to gain access of other routes params we need to use  {mergeParams: true}
  */
+const {
+  getAllReviews,
+  setTourUserIds,
+  createTourReview,
+  updateReview,
+  deleteReview,
+  getReview,
+} = reviewController;
+const { protect } = authController;
 const router = express.Router({ mergeParams: true }); //mini application itself
 
 router
   .route('/')
-  .get(authController.protect, reviewController.getAllReviews)
-  .post(authController.protect, reviewController.createTourReview);
-/*
+  .get(protect, getAllReviews)
+  .post(protect, setTourUserIds, createTourReview);
+/** */
 router
   .route('/:id')
-  .get(reviewController.getReview)
-  .patch(reviewController.updateReview)
-  .delete(authController.protect, reviewController.deleteReview);
-*/
+  .get(getReview)
+  .patch(updateReview)
+  .delete(protect, deleteReview);
+/**/
 module.exports = router;
