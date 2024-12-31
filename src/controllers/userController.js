@@ -65,14 +65,13 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getUser = catchAsync(async (req, res, next) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'this route is not yet defined.',
-  });
-});
-exports.getAllTours = getAll(User);
-exports.getTour = getOne(User);
+exports.getMe = (req, res, next) => {
+  req.prams.id = req.user.id;
+  next();
+};
+
+exports.getUser = getOne(User);
+exports.getAllUser = getAll(User);
 exports.createNewUser = createOne(User);
 exports.updateUser = updateOne(User);
 exports.deleteUser = deleteOne(User);
