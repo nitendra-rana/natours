@@ -10,7 +10,6 @@ exports.setTourUserIds = async (req, res, next) => {
   next();
 };
 
-
 exports.getAllReviews = getAll(Review);
 exports.getReview = getOne(Review, { path: 'user' });
 exports.createTourReview = createOne(Review);
