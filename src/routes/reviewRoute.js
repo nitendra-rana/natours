@@ -14,9 +14,10 @@ const {
   deleteReview,
   getReview,
 } = reviewController;
-const { protect } = authController;
+const { protect, restrictTo } = authController;
 const router = express.Router({ mergeParams: true }); //mini application itself
 
+router.use(protect);
 router
   .route('/')
   .get(protect, getAllReviews)
@@ -25,7 +26,7 @@ router
 router
   .route('/:id')
   .get(getReview)
-  .patch(updateReview)
-  .delete(protect, deleteReview);
+  .patch(restrictTo('admin', 'user'), updateReview)
+  .delete(restrictTo('admin', 'user'), deleteReview);
 /**/
 module.exports = router;

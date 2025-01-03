@@ -9,23 +9,37 @@ const {
   login,
   forgotPassword,
   resetPassword,
+  restrictTo,
 } = authController;
 
-const { getUsers, createNewUser, updateUser, deleteUser, getMe, getUser } =
-  userController;
+const {
+  getUsers,
+  createNewUser,
+  updateUser,
+  deleteUser,
+  getMe,
+  getUser,
+  updateMe,
+  deleteMe,
+} = userController;
 //users Resource
 const router = express.Router();
-
+//open routes for all
 router.post('/signup', signup);
 router.post('/login', login);
 router.post('/forgotPassword', forgotPassword);
 router.patch('/resetPassword/:token', resetPassword);
-router.patch('/updatePassword', protect, updatePassword);
-router.patch('/updateMe', authController.protect, userController.updateMe);
-router.patch('/deleteMe', authController.protect, userController.deleteMe);
 
+//protected for logged in user
+router.use(protect);
+router.patch('/updatePassword', updatePassword);
+router.patch('/updateMe', updateMe);
+router.patch('/deleteMe', deleteMe);
 router.route('/').get(getUsers).post(createNewUser);
-router.route('/:id?').patch(updateUser).delete(deleteUser);
+router.route('/me').get(getMe, getUser);
 
-router.route('/me').get(protect, getMe, getUser);
+//restricted to admin only
+router.use(restrictTo('admin'));
+router.route('/:id?').get(getUser).patch(updateUser).delete(deleteUser);
+
 module.exports = router;

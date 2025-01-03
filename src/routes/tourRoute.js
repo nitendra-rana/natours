@@ -2,6 +2,18 @@ const express = require('express');
 const tourController = require('../controllers/tourController');
 const authController = require('../controllers/authController');
 // const reviewController = require('../controllers/reviewController');
+
+const { protect, restrictTo } = authController;
+const {
+  getAllTours,
+  getTourStats,
+  getMonthelyPlans,
+  createNewtour,
+  getTour,
+  updateTour,
+  deleteTour,
+  aliasTopTour,
+} = tourController;
 const reviewRouter = require('./reviewRoute');
 
 //tours resource
@@ -14,25 +26,21 @@ const router = express.Router(); //mini application itself
 router.use('/:tourId/reviews', reviewRouter);
 /**/
 // router.param('id', tourController.checkId);
-router
-  .route('/top-5-cheap')
-  .get(tourController.aliasTopTour, tourController.getAllTours);
-router.route('/tour-stats').get(tourController.getTourStats);
+router.route('/top-5-cheap').get(aliasTopTour, getAllTours);
+router.route('/tour-stats').get(getTourStats);
 
-router.route('/monthly-plan/:year').get(tourController.getMonthelyPlans);
+router
+  .route('/monthly-plan/:year')
+  .get(protect, restrictTo('admin', 'lead-guide', 'guide'), getMonthelyPlans);
 router
   .route('/')
-  .get(authController.protect, tourController.getAllTours)
-  .post(tourController.createNewtour);
+  .get(getAllTours)
+  .post(protect, restrictTo('admin', 'lead-guide'), createNewtour);
 
 router
   .route('/:id')
-  .get(tourController.getTour)
-  .patch(tourController.updateTour)
-  .delete(
-    authController.protect,
-    authController.restrictTo('admin', 'lead-guide'),
-    tourController.deleteTour,
-  );
+  .get(getTour)
+  .patch(protect, restrictTo('admin', 'lead-guide'), updateTour)
+  .delete(protect, restrictTo('admin', 'lead-guide'), deleteTour);
 
 module.exports = router;
