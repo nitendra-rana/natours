@@ -129,6 +129,14 @@ const tourSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   },
 );
+/**
+ * Indexes
+ */
+//simple index
+// tourSchema.index({ price: 1 });
+tourSchema.index({ slug: 1 });
+//compound index
+tourSchema.index({ price: 1, ratingsAverage: -1 });
 
 /**
  * Virtual propery are the fields that are not be presisted(not to be saved in db).
