@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Tour = require('./tourModel');
 
 const reviewSchema = new mongoose.Schema({
   review: {
@@ -48,6 +49,50 @@ reviewSchema.pre(/^find/, function (next) {
 
 /** */
 
+reviewSchema.statics.calculateAvergaeRatings = async function (tourId) {
+  const stats = await this.aggegrate([
+    {
+      $match: { tour: tourId },
+    },
+    {
+      $group: {
+        _id: '$tour',
+        nRatings: { $sum: 1 },
+        avgRatings: { $avg: 'ratings' },
+      },
+    },
+  ]);
+  if (stats.length > 0) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: stats[0].nRatings,
+      ratingsAverage: stats[0].avgRatings,
+    });
+  } else {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: 0,
+      ratingsAverage: 4.5,
+    });
+  }
+};
+
+reviewSchema.post('save', function () {
+  this.constructor.calculateAvergaeRatings(this.tour);
+});
+//FindByIdAndUpdate
+//findByIdAndDelete
+reviewSchema.pre(/^findOneAnd/, async function (next) {
+  /**
+   *save the id the review top pass id to post middleware
+   */
+  this.r = await this.findOne();
+  next();
+});
+reviewSchema.post(/^findOneAnd/, async function () {
+  /**
+   * this.findOne doesn't work here becase querry is already executed.
+   */
+  await this.r.constructor.calculateAvergaeRatings(this.r.tour);
+});
 const Review = mongoose.model('review', reviewSchema);
 
 module.exports = Review;
