@@ -17,7 +17,7 @@ exports.deleteOne = (Model) =>
 exports.updateOne = (Model) =>
   catchAsync(async (req, res, next) => {
     const { id } = req.params;
-    if (req.params.id) {
+    if (id) {
       const updatedDocument = await Model.findByIdAndUpdate(id, req.body, {
         new: true,
         runValidators: true, //This line will run validators again, in cas its false it won't run again.
