@@ -13,6 +13,7 @@ const {
   updateTour,
   deleteTour,
   aliasTopTour,
+  getToursWithin,
 } = tourController;
 const reviewRouter = require('./reviewRoute');
 
@@ -32,6 +33,13 @@ router.route('/tour-stats').get(getTourStats);
 router
   .route('/monthly-plan/:year')
   .get(protect, restrictTo('admin', 'lead-guide', 'guide'), getMonthelyPlans);
+
+router.route(
+  '/tours-within/:distance/center/:latlang/unit/:unit',
+  getToursWithin,
+);
+//tours-within?distance=233&center=-40,45&unit=mi
+//tours-within/233/center/-40,45/unit/mi'
 router
   .route('/')
   .get(getAllTours)
