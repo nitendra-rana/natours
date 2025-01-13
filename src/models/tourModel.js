@@ -138,6 +138,7 @@ const tourSchema = new mongoose.Schema(
 tourSchema.index({ slug: 1 });
 //compound index
 tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ startLocation: '2dsphere' });
 
 /**
  * Virtual propery are the fields that are not be presisted(not to be saved in db).

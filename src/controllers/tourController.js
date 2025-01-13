@@ -121,9 +121,10 @@ exports.getMonthelyPlans = catchAsync(async (req, res) => {
   });
 });
 
-exports.getToursWithin = (req, res, next) => {
+exports.getToursWithin = async (req, res, next) => {
   const { distance, latlang, unit } = req.params;
   const { lat, lng } = latlang.split(',');
+  const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
   if (!lat || !lng) {
     next(
       new AppError(
@@ -132,8 +133,17 @@ exports.getToursWithin = (req, res, next) => {
       ),
     );
   }
-  console.log(distance, lat, lng, unit);
+  const tours = await Tour.find({
+    startLocation: {
+      $geoWithin: {
+        $centerSphere: [lng, lat, radius],
+      },
+    },
+  });
+  // console.log(distance, lat, lng, unit);
   res.status(200).json({
     status: 'success',
+    count: tours,
+    results: tours,
   });
 };
