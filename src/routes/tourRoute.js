@@ -34,11 +34,13 @@ router
   .route('/monthly-plan/:year')
   .get(protect, restrictTo('admin', 'lead-guide', 'guide'), getMonthelyPlans);
 
+router.route('/distances/:latlang/unit/:unit').get(getToursWithin);
+//tours-within?distance=233&center=30.884033, -99.358821&unit=mi
+//tours-within/233/center/30.884033, -99.358821/unit/mi'
+
 router
   .route('/tours-within/:distance/center/:latlang/unit/:unit')
   .get(getToursWithin);
-//tours-within?distance=233&center=-40,45&unit=mi
-//tours-within/233/center/-40,45/unit/mi'
 router
   .route('/')
   .get(getAllTours)
