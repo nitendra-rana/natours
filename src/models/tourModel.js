@@ -208,8 +208,9 @@ tourSchema.post(/^find/, function (docs, next) {
 //AGGREGATION PIPELINE
 
 tourSchema.pre('aggregate', function (next) {
-  this.pipeline().unshift({ $match: { secretTours: { $ne: true } } });
-  // console.log(this.pipeline());
+  //this will cause problem for geoNear pipeline
+  // this.pipeline().unshift({ $match: { secretTours: { $ne: true } } });
+  console.log(this.pipeline());
   next();
 });
 
